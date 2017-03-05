@@ -4,4 +4,5 @@
 	//Use this space for testing DBHelper functions
 	$db = new DatabaseHelper();
 	$db->createDB();
+	$db->createUser("jack", "hello", "hello");
 ?>

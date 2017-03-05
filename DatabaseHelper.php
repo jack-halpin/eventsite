@@ -22,6 +22,37 @@ class DatabaseHelper{
 		echo "Connected successfully";
 	}
 
+	//Developer function for setting up the database
+	function createDB(){
+		//Drop existing schema if it already exists
+		$stmt = $this->connection->prepare("DROP SCHEMA eventdb");
+		$stmt->execute();
+		//Create the database
+		$stmt = $this->connection->prepare("CREATE DATABASE IF NOT EXISTS eventdb");
+		$stmt->execute();
+
+		//Create the events table
+		$stmt = $this->connection->prepare("CREATE TABLE eventdb.Events (
+				id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+				event_name VARCHAR(30) NOT NULL,
+				event_date DATETIME,
+				event_location VARCHAR(30) NOT NULL,
+				user_created VARCHAR(30) NOT NULL,
+				creation_date TIMESTAMP)");
+		$stmt->execute();
+
+		//Create the user table
+		$stmt = $this->connection->prepare("CREATE TABLE eventdb.users (
+				id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+				username VARCHAR(30) NOT NULL,
+				password VARCHAR(60) NOT NULL,
+				email VARCHAR(30) NOT NULL,
+				creation_date TIMESTAMP
+)");
+
+		$stmt->execute();
+
+	}
 	//Function to add a new user to the database, if the creation was a succcess return 1, else return 0
 	function createUser($username, $password, $email){
 		//Need to encrypt the password for storage into the datbase
@@ -52,30 +83,22 @@ class DatabaseHelper{
 		$user = $stmt->get_result();
 		$row = $user->fetch_assoc();
 		if (password_verify($password, $row["password"])){
+			//Set the session variables for the user and return true
+			session_start();
+			$_SESSION["username"] = $username;
 			return true;
 		}
 		return false;
-
 	}
 
+	//Descructor when the class object has been destroyed
 	function __destruct() {
 		//When the object is destroyed close the connection to the database
 		$this->connection->close();
 	}
 }
 
-//When user asks to login verity that the user belongs to the database
-$db = new DatabaseHelper();
 
-//Get the username and password
-$user = $_POST['uname'];
-$password = $_POST['psw'];
-echo $user;
-echo $password;
-if ($db->verifyUser($user, $password)){
-	echo "You have logged in!";
-}
-else{
-	echo "No user exists with those details.";
-}
+
+
 ?>

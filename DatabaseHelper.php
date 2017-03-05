@@ -29,16 +29,6 @@ class DatabaseHelper{
 		$stmt = $this->connection->prepare("CREATE DATABASE IF NOT EXISTS eventdb");
 		$stmt->execute();
 
-		//Create the events table
-		$stmt = $this->connection->prepare("CREATE TABLE eventdb.Events (
-				id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-				event_name VARCHAR(30) NOT NULL,
-				event_date DATETIME,
-				event_location VARCHAR(30) NOT NULL,
-				user_created VARCHAR(30) NOT NULL,
-				creation_date TIMESTAMP)");
-		$stmt->execute();
-
 		//Create the user table
 		$stmt = $this->connection->prepare("CREATE TABLE eventdb.users (
 				id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -46,10 +36,24 @@ class DatabaseHelper{
 				password VARCHAR(60) NOT NULL,
 				email VARCHAR(30) NOT NULL,
 				creation_date TIMESTAMP
-)");
+				)");
 
 		$stmt->execute();
 
+
+		//Create the events table
+		$stmt = $this->connection->prepare("CREATE TABLE eventdb.events (
+				id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+				event_name VARCHAR(30) NOT NULL,
+				event_date DATETIME,
+				event_location VARCHAR(30) NOT NULL,
+				user_created VARCHAR(30) NOT NULL,
+				creator_id INT(6) UNSIGNED NOT NULL,
+				creation_date TIMESTAMP,
+				FOREIGN KEY (creator_id) REFERENCES eventdb.users(id))
+				");
+
+		$stmt->execute();
 	}
 	//Function to add a new user to the database, if the creation was a succcess return 1, else return 0
 	function createUser($username, $password, $email){
